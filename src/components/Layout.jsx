@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { LayoutDashboard, Target, Users, CheckSquare, Bell, Settings, LogOut, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, Target, Users, CheckSquare, Bell, Settings, LogOut, AlertCircle } from 'lucide-react'
 
 export default function Layout() {
   const { profile, signOut } = useAuth()
@@ -15,6 +15,7 @@ export default function Layout() {
     { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { label: 'Goals Breakdown', icon: Target, path: '/goals' },
     { label: 'Staff Performance', icon: Users, path: '/performance' },
+    { label: 'Flag Issues', icon: AlertCircle, path: '/flagged-issues' },
   ] : [
     { label: 'My Daily Tasks', icon: CheckSquare, path: '/' },
     { label: 'My KPIs', icon: Target, path: '/my-kpis' },

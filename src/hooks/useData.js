@@ -20,14 +20,18 @@ export const useData = create((set, get) => ({
   },
 
   fetchMonthlyKpis: async (goalId) => {
-    const { data, error } = await supabase
+    set({ loading: true })
+    const query = supabase
       .from('kpisync_monthly_kpis')
-      .select('*')
-      .eq('yearly_goal_id', goalId)
-      .order('month', { ascending: true })
+      .select('*, kpisync_yearly_goals(*)')
+    
+    if (goalId) query.eq('yearly_goal_id', goalId)
+    
+    const { data, error } = await query.order('month', { ascending: true })
     
     if (error) console.error(error)
     else set({ monthlyKpis: data || [] })
+    set({ loading: false })
   },
 
   fetchTasks: async (userId) => {
@@ -83,5 +87,26 @@ export const useData = create((set, get) => ({
     
     if (error) throw error
     await get().fetchTasks()
+    await get().fetchStuckTasks()
+  },
+
+  fetchStuckTasks: async () => {
+    set({ loading: true })
+    const { data, error } = await supabase
+      .from('kpisync_tasks')
+      .select(`
+        *,
+        kpisync_profiles:assigned_to (email, role),
+        kpisync_monthly_kpis (
+          *,
+          kpisync_yearly_goals (*)
+        )
+      `)
+      .eq('status', 'stuck')
+      .order('created_at', { ascending: false })
+    
+    if (error) console.error(error)
+    else set({ tasks: data || [] })
+    set({ loading: false })
   }
 }))

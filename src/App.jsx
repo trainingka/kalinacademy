@@ -6,6 +6,8 @@ import AuthForm from './pages/AuthForm'
 import BossDashboard from './pages/BossDashboard'
 import StaffDashboard from './pages/StaffDashboard'
 import AutoBreakdownEngine from './pages/AutoBreakdownEngine'
+import MyKPIs from './pages/MyKPIs'
+import FlaggedIssues from './pages/FlaggedIssues'
 import Layout from './components/Layout'
 
 function App() {
@@ -54,6 +56,8 @@ function App() {
           } />
           <Route path="/goals" element={<BossDashboard />} />
           <Route path="/goals/:id/breakdown" element={<AutoBreakdownEngine />} />
+          <Route path="/my-kpis" element={<MyKPIs />} />
+          <Route path="/flagged-issues" element={<FlaggedIssues />} />
         </Route>
       </Routes>
     </Router>
