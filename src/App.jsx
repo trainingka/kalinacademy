@@ -8,6 +8,7 @@ import StaffDashboard from './pages/StaffDashboard'
 import AutoBreakdownEngine from './pages/AutoBreakdownEngine'
 import MyKPIs from './pages/MyKPIs'
 import ResetPassword from './pages/ResetPassword'
+import FlaggedIssues from './pages/FlaggedIssues'
 import Layout from './components/Layout'
 
 function App() {
