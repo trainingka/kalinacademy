@@ -18,6 +18,9 @@ import {
   Moon
 } from 'lucide-react'
 
+// Mock Title for accessibility if Dialog exists (Prevents radix error)
+const DialogTitle = ({ children, ...props }) => <h3 {...props}>{children}</h3>
+
 export default function Layout() {
   const { profile, signOut } = useAuth()
   const navigate = useNavigate()
@@ -26,8 +29,10 @@ export default function Layout() {
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   
-  // Theme State
-  const [theme, setTheme] = useState(localStorage.getItem('kpisync_theme') || 'dark')
+  // Theme State Configuration
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('kpisync_theme') || 'dark'
+  })
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -42,7 +47,7 @@ export default function Layout() {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark')
   }
 
-  // Performance Logic for Mood Avatar (Mocked for current session)
+  // Mood Avatar synchronization
   const completion = 85
   const target = 90
   const isPerforming = completion >= target
@@ -61,7 +66,6 @@ export default function Layout() {
     alert('Enterprise Settings module coming soon!')
   }
 
-  // Demo Mode Menu Items
   const menuItems = [
     { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { label: 'Goals Breakdown', icon: Zap, path: '/breakdown' },
@@ -75,8 +79,8 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B1120] text-slate-900 dark:text-slate-400 font-sans selection:bg-sky-500/30 transition-colors duration-300">
-      {/* Sidebar Desktop */}
-      <aside className="fixed left-0 top-0 w-72 h-full bg-white dark:bg-slate-950/90 border-r border-slate-200 dark:border-slate-800/60 backdrop-blur-xl z-20 hidden lg:flex flex-col">
+      {/* Sidebar Terminal */}
+      <aside className="fixed left-0 top-0 w-72 h-full bg-white dark:bg-slate-950/90 border-r border-slate-200 dark:border-slate-800/60 backdrop-blur-xl z-50 hidden lg:flex flex-col">
         <div className="p-8">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 bg-sky-500 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(14,165,233,0.5)]">
@@ -106,7 +110,7 @@ export default function Layout() {
           ))}
         </nav>
 
-        <div className="p-6 border-t border-slate-200 dark:border-slate-800/60">
+        <div className="p-6 border-t border-slate-200 dark:border-slate-800/60 transition-colors">
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-rose-500/10 text-slate-500 hover:text-rose-500 transition-all group"
@@ -117,9 +121,9 @@ export default function Layout() {
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      {/* Main Execution Shell */}
       <main className="lg:pl-72 min-h-screen relative">
-        {/* Universal Top Header */}
+        {/* Universal Top Deployment Header */}
         <header className="h-20 bg-white/70 dark:bg-slate-950/40 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/40 sticky top-0 z-50 px-8 flex items-center justify-between transition-colors">
           <div className="lg:hidden">
              <h1 className="text-xl font-black text-slate-900 dark:text-white">KPISync</h1>
@@ -133,15 +137,7 @@ export default function Layout() {
 
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-               {/* Theme Toggle */}
-               <button 
-                 onClick={toggleTheme}
-                 className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl transition-all"
-               >
-                 {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-               </button>
-
-               {/* Notification Bell */}
+               {/* Notification Bell Interface */}
                <div className="relative">
                  <button 
                    onClick={() => {
@@ -154,28 +150,28 @@ export default function Layout() {
                    <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-rose-500 rounded-full border-2 border-white dark:border-slate-950 shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
                  </button>
 
-                 {/* Notifications Dropdown */}
+                 {/* Notifications Dropdown UI Container */}
                  {showNotifications && (
                    <div className="absolute right-0 mt-4 w-80 bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-2xl backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                      <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center transition-colors">
-                        <h4 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest leading-none">Security Notifications</h4>
+                        <DialogTitle className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest leading-none">Security Notifications</DialogTitle>
                         <span className="text-[8px] font-black bg-sky-500/10 text-sky-600 dark:text-sky-400 px-2 py-0.5 rounded uppercase">3 New</span>
                      </div>
                      <div className="max-h-96 overflow-y-auto">
                         <div className="p-4 border-b border-slate-50 dark:border-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer">
                            <p className="text-xs font-black text-slate-900 dark:text-white mb-1">New task assigned by Boss</p>
                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400">Quarterly audit verification required</p>
-                           <p className="text-[8px] font-black text-sky-500 mt-2 uppercase">2m ago</p>
+                           <p className="text-[8px] font-black text-sky-500 mt-2 uppercase transition-all">2m ago</p>
                         </div>
                         <div className="p-4 border-b border-slate-50 dark:border-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer">
                            <p className="text-xs font-black text-slate-900 dark:text-white mb-1">System update V2.0 Elite</p>
                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400">Protocol optimization successfully deployed</p>
-                           <p className="text-[8px] font-black text-sky-500 mt-2 uppercase">1h ago</p>
+                           <p className="text-[8px] font-black text-sky-500 mt-2 uppercase transition-all">1h ago</p>
                         </div>
                         <div className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer">
                            <p className="text-xs font-black text-slate-900 dark:text-white mb-1">Metric Alert</p>
                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400">Sales target reached 85% for Q4</p>
-                           <p className="text-[8px] font-black text-emerald-500 mt-2 uppercase">4h ago</p>
+                           <p className="text-[8px] font-black text-emerald-500 mt-2 uppercase transition-all">4h ago</p>
                         </div>
                      </div>
                      <div className="p-3 bg-slate-50/50 dark:bg-slate-950/40 text-center transition-colors">
@@ -185,7 +181,7 @@ export default function Layout() {
                  )}
                </div>
 
-               {/* Settings Button */}
+               {/* Settings Module Activation */}
                <button 
                  onClick={handleSettingsClick}
                  className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-sky-500 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl transition-all"
@@ -194,9 +190,18 @@ export default function Layout() {
                </button>
             </div>
             
-            <div className="h-10 w-px bg-slate-200 dark:bg-slate-800/60 mx-2 transition-colors" />
+            {/* Global Theme Toggle - REPOSITIONED BETWEEN SETTINGS AND PROFILE */}
+            <button 
+              onClick={toggleTheme}
+              className="p-2.5 bg-slate-100 dark:bg-slate-800/50 text-sky-600 dark:text-sky-400 hover:bg-sky-500 dark:hover:bg-sky-500 hover:text-white rounded-xl transition-all shadow-sm border border-slate-200 dark:border-slate-700/50 flex items-center justify-center min-w-[42px]"
+              title={theme === 'dark' ? "Switch to Light Protocol" : "Switch to Dark Protocol"}
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
             
-            {/* User Profile Area */}
+            <div className="h-10 w-px bg-slate-200 dark:bg-slate-800/60 mx-1 transition-colors" />
+            
+            {/* Operator Identify Port */}
             <div className="relative">
               <div 
                 onClick={() => {
@@ -205,11 +210,11 @@ export default function Layout() {
                 }}
                 className="flex items-center gap-3 pl-2 cursor-pointer group"
               >
-                <div className="text-right hidden sm:block">
+                <div className="text-right hidden sm:block transition-all">
                   <p className="text-sm font-black text-slate-900 dark:text-white leading-none uppercase tracking-tight group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">
                     {profile?.email?.split('@')[0] || 'Unknown Identity'}
                   </p>
-                  <p className="text-[10px] font-black text-sky-500 uppercase tracking-widest mt-1.5 flex items-center justify-end gap-1.5 leading-none">
+                  <p className="text-[10px] font-black text-sky-500 uppercase tracking-widest mt-1.5 flex items-center justify-end gap-1.5 leading-none transition-all">
                      <span className="w-1 h-1 bg-sky-500 rounded-full" />
                      {profile?.role || 'System Root'}
                   </p>
@@ -225,19 +230,19 @@ export default function Layout() {
                    <img 
                       src={moodAvatar} 
                       alt="Avatar" 
-                      className="rounded-[10px] w-full h-full object-cover group-hover:scale-110 transition-transform"
+                      className="rounded-[10px] w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                    />
                 </div>
               </div>
 
-              {/* Profile Dropdown */}
+              {/* Profile Dropdown Context Menu */}
               {showProfileMenu && (
                 <div className="absolute right-0 mt-4 w-60 bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-2xl backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 transition-colors">
-                     <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight truncate leading-none">{profile?.email || 'root@kpisync.elite'}</p>
-                     <p className="text-[9px] font-black text-sky-600 dark:text-sky-500 uppercase tracking-[0.2em] mt-2 leading-none">Status: Authorized</p>
+                  <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 transition-colors flex flex-col gap-2">
+                     <DialogTitle className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight truncate leading-none">{profile?.email || 'root@kpisync.elite'}</DialogTitle>
+                     <p className="text-[9px] font-black text-sky-600 dark:text-sky-500 uppercase tracking-[0.2em] leading-none transition-all">Status: Authorized</p>
                   </div>
-                  <div className="p-2">
+                  <div className="p-2 transition-all">
                      <button 
                         onClick={() => {
                           navigate('/profile')
@@ -252,7 +257,7 @@ export default function Layout() {
                         <ShieldCheck size={18} />
                         <span className="text-xs font-bold uppercase tracking-widest">Security Access</span>
                      </button>
-                     <div className="h-px bg-slate-100 dark:bg-slate-800 my-2 mx-2" />
+                     <div className="h-px bg-slate-100 dark:bg-slate-800 my-2 mx-2 transition-colors" />
                      <button 
                         onClick={handleLogout}
                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-rose-500/10 text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-500 transition-all text-left group"
@@ -267,16 +272,16 @@ export default function Layout() {
           </div>
         </header>
 
-        {/* Dynamic Outlet Stage */}
+        {/* Dynamic Outlet Delivery Stage */}
         <div className="p-8 lg:p-12 max-w-[1600px] mx-auto min-h-[calc(100vh-80px)]">
            <Outlet />
         </div>
         
-        {/* Sub-context Footer Metadata */}
+        {/* Hardware-Metadata Peripheral Footer */}
         <footer className="px-12 pb-12 opacity-30 pointer-events-none transition-colors">
-           <div className="border-t border-slate-200 dark:border-slate-800/40 pt-8 flex justify-between items-center">
+           <div className="border-t border-slate-200 dark:border-slate-800/40 pt-8 flex justify-between items-center transition-all">
               <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-900 dark:text-slate-400">KPISync ENTERPRISE OS V2.0 • PROTOCOL ACTIVE</p>
-              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-900 dark:text-slate-400">INTERNAL DEMO BUILD #412</p>
+              <p className="text-[9px] font-black uppercase tracking-[0.5em] text-slate-900 dark:text-slate-400 transition-all">BUILD: 14042024</p>
            </div>
         </footer>
       </main>
