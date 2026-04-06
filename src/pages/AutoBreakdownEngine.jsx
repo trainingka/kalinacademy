@@ -92,7 +92,7 @@ export default function AutoBreakdownEngine() {
                  <div className="h-10 w-1 bg-sky-500 rounded-full" />
                  <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none">Operational Cascade</h3>
               </div>
-              <button className="bg-sky-500 text-white text-[9px] font-black px-6 py-3 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-sky-500/50 transition-all leading-none">Apply Breakdown</p>
+              <button className="bg-sky-500 text-white text-[9px] font-black px-6 py-3 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-sky-500/50 transition-all leading-none">Apply Breakdown</button>
            </div>
 
            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
