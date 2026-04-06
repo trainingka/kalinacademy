@@ -46,21 +46,31 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={!user ? <AuthForm /> : <Navigate to="/" />} />
+        {/* Explicit Login Route */}
+        <Route path="/login" element={!user ? <AuthForm /> : <Navigate to="/dashboard" />} />
         
         {/* Core Application Shell */}
         <Route path="/" element={user ? <Layout /> : <Navigate to="/login" />}>
-          <Route index element={
-            profile?.role === 'admin' ? <BossDashboard /> : <StaffDashboard />
-          } />
-          <Route path="/goals" element={<BossDashboard />} />
-          <Route path="/goals/:id/breakdown" element={<AutoBreakdownEngine />} />
-          <Route path="/performance" element={<StaffPerformance />} />
-          <Route path="/my-kpis" element={<MyKPIs />} />
-          <Route path="/flagged-issues" element={<FlaggedIssues />} />
+          {/* Root Redirect to Dashboard */}
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          
+          {/* Dashboard Routes */}
+          <Route path="dashboard" element={<BossDashboard />} />
+          <Route path="staff-dashboard" element={<StaffDashboard />} />
+          
+          {/* Feature Routes */}
+          <Route path="breakdown" element={<AutoBreakdownEngine />} />
+          <Route path="performance" element={<StaffPerformance />} />
+          <Route path="my-kpis" element={<MyKPIs />} />
+          <Route path="flagged-issues" element={<FlaggedIssues />} />
+          
+          {/* Legacy/Deep Link support */}
+          <Route path="goals" element={<Navigate to="/dashboard" replace />} />
+          <Route path="goals/:id/breakdown" element={<AutoBreakdownEngine />} />
         </Route>
         
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   )
