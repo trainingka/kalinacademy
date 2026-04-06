@@ -9,22 +9,19 @@ import AutoBreakdownEngine from './pages/AutoBreakdownEngine'
 import MyKPIs from './pages/MyKPIs'
 import ResetPassword from './pages/ResetPassword'
 import FlaggedIssues from './pages/FlaggedIssues'
+import StaffPerformance from './pages/StaffPerformance'
 import Layout from './components/Layout'
 
 function App() {
   const { user, profile, loading, setUser, setProfile, setLoading, fetchProfile } = useAuth()
 
   useEffect(() => {
-    // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchProfile(session.user.id)
-      }
+      if (session?.user) fetchProfile(session.user.id)
       setLoading(false)
     })
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
       if (session?.user) {
@@ -40,8 +37,8 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
+      <div className="min-h-screen flex items-center justify-center bg-[#0B1120]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500 shadow-[0_0_15px_rgba(14,165,233,0.5)]"></div>
       </div>
     )
   }
@@ -51,15 +48,18 @@ function App() {
       <Routes>
         <Route path="/login" element={!user ? <AuthForm /> : <Navigate to="/" />} />
         
+        {/* Core Application Shell */}
         <Route path="/" element={user ? <Layout /> : <Navigate to="/login" />}>
           <Route index element={
             profile?.role === 'admin' ? <BossDashboard /> : <StaffDashboard />
           } />
           <Route path="/goals" element={<BossDashboard />} />
           <Route path="/goals/:id/breakdown" element={<AutoBreakdownEngine />} />
+          <Route path="/performance" element={<StaffPerformance />} />
           <Route path="/my-kpis" element={<MyKPIs />} />
           <Route path="/flagged-issues" element={<FlaggedIssues />} />
         </Route>
+        
         <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </Router>

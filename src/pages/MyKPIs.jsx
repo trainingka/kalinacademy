@@ -1,209 +1,187 @@
 import { useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useData } from '../hooks/useData'
-import { Target, Zap, Rocket, Star, GraduationCap, HelpCircle, ArrowRight, TrendingUp, CheckCircle2, Clock } from 'lucide-react'
+import { 
+  Rocket, 
+  Zap, 
+  Target, 
+  Star, 
+  GraduationCap, 
+  HelpCircle, 
+  TrendingUp, 
+  Wallet, 
+  Headphones, 
+  Terminal,
+  HelpCircle as HelpIcon,
+  RefreshCw
+} from 'lucide-react'
 
 export default function MyKPIs() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const { monthlyKpis, fetchMonthlyKpis, tasks, fetchTasks, loading } = useData()
 
   useEffect(() => {
     if (user) {
-      // Fetch all KPIs for the organization map
       fetchMonthlyKpis()
-      // Fetch specifically tasks assigned to the user
       fetchTasks(user.id)
     }
   }, [user])
 
-  // Get first 3 KPIs for the monthly map
-  const topKpis = monthlyKpis.slice(0, 3)
+  const milestones = tasks.filter(t => t.status !== 'completed').slice(0, 3)
 
-  // Filter tasks to show active "Milestones"
-  const milestones = tasks
-    .filter(t => t.status !== 'completed')
-    .slice(0, 3)
+  const KpiCard = ({ title, value, target, progress, icon: Icon, color, shadowColor, progressLabel }) => (
+    <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800/60 rounded-[40px] p-10 relative overflow-hidden group hover:bg-slate-900/60 transition-all border-b-4 border-b-transparent hover:border-b-sky-500/50">
+       <div className="flex items-start justify-between relative z-10 mb-10">
+          <div>
+             <p className="text-[10px] font-black tracking-[0.2em] text-slate-500 uppercase mb-4 leading-none">{title}</p>
+             <h3 className="text-5xl font-black text-white tracking-tighter leading-none mb-4">
+                {value}<span className={`text-sm font-bold ml-2 ${progress >= 90 ? 'text-emerald-500' : 'text-slate-500'}`}>{target}</span>
+             </h3>
+          </div>
+          <div className="p-4 bg-slate-800/50 rounded-2xl text-slate-600 group-hover:text-sky-400 group-hover:bg-sky-500/10 transition-all">
+             <Icon size={24} />
+          </div>
+       </div>
 
-  const KpiCard = ({ kpi, icon: Icon, colorClass }) => {
-    const progress = (kpi.current_progress / kpi.target_value) * 100
-    return (
-      <div className="glass-card p-8 border-slate-200 shadow-soft transition-all hover:scale-[1.02] bg-white group">
-        <div className="flex items-start justify-between mb-8">
-          <div className={`p-4 rounded-2xl ${colorClass} bg-opacity-10`}>
-            <Icon size={24} className={colorClass.replace('bg-', 'text-')} />
+       <div className="space-y-4">
+          <div className="flex justify-between items-end">
+             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{progressLabel}</p>
+             <span className={`text-xs font-black ${color}`}>{progress}%</span>
           </div>
-          <div className="text-right">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Target Value</p>
-            <p className="text-2xl font-black text-slate-900 leading-none">
-              ${(kpi.target_value / 1000).toFixed(1)}k
-            </p>
+          <div className="h-2.5 w-full bg-slate-950 rounded-full overflow-hidden shadow-inner border border-slate-900/40">
+             <div 
+               className={`h-full rounded-full transition-all duration-1000 ${color} ${shadowColor}`} 
+               style={{ width: `${progress}%` }} 
+             />
           </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-end justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">Current Progress</p>
-              <div className="flex items-baseline gap-2">
-                <p className="text-xl font-extrabold text-slate-900">${(kpi.current_progress / 1000).toFixed(1)}k</p>
-                <span className="text-[10px] text-slate-400">/ ${kpi.target_value.toLocaleString()}</span>
-              </div>
-            </div>
-            <div className="text-right">
-              <span className={`text-sm font-black ${progress >= 90 ? 'text-emerald-500' : progress >= 50 ? 'text-sky-500' : 'text-amber-500'}`}>
-                {progress.toFixed(1)}%
-              </span>
-            </div>
-          </div>
-          <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
-            <div 
-              className={`h-full rounded-full transition-all duration-1000 ${progress >= 90 ? 'bg-emerald-500' : progress >= 50 ? 'bg-sky-500' : 'bg-amber-500'}`}
-              style={{ width: `${Math.min(progress, 100)}%` }} 
-            />
-          </div>
-          <div className="flex justify-between items-center pt-2">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{kpi.kpisync_yearly_goals?.title || 'General Performance'}</p>
-            <TrendingUp size={12} className="text-slate-300" />
-          </div>
-        </div>
-      </div>
-    )
-  }
+       </div>
+    </div>
+  )
 
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 pb-20">
-      {/* Dynamic Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-10">
-        <div>
-          <div className="flex items-center gap-3 mb-3">
-             <span className="h-2 w-2 bg-sky-500 rounded-full animate-pulse" />
-             <p className="text-[10px] font-black text-sky-500 uppercase tracking-[0.2em]">Live Operational Cycle</p>
-          </div>
-          <h2 className="text-5xl font-black tracking-tight text-slate-900">
-            My <span className="text-sky-500 italic">KPIs</span>
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 pb-20 relative">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-slate-800/40 pb-12">
+        <div className="relative">
+          <h2 className="text-6xl font-black tracking-tight text-white leading-none">
+            Monthly KPI <span className="text-sky-500 italic">Map</span>
           </h2>
-          <p className="text-slate-500 mt-4 font-medium text-lg">Real-time performance distribution for the current cycle</p>
+          <p className="text-slate-400 mt-6 font-medium text-lg max-w-xl">
+             Real-time performance distribution for October 2023
+          </p>
         </div>
+
         <div className="flex gap-4">
-           <div className="px-6 py-3 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3">
-              <CheckCircle2 size={18} className="text-emerald-500" />
-              <span className="text-xs font-bold text-emerald-600 uppercase tracking-widest">On Track</span>
+           <div className="px-6 py-3 bg-emerald-500/10 text-emerald-400 text-[10px] font-black rounded-full border border-emerald-500/20 uppercase tracking-[0.3em] flex items-center gap-3">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+              On Track
            </div>
-           <div className="px-6 py-3 bg-slate-100 border border-slate-200 rounded-2xl flex items-center gap-3">
-              <Clock size={18} className="text-slate-400" />
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Next Review: 4d</span>
+           <div className="px-6 py-3 bg-slate-800/40 text-slate-500 text-[10px] font-black rounded-full border border-slate-800/60 uppercase tracking-[0.3em]">
+              Review Required
            </div>
         </div>
       </div>
 
-      {/* Monthly KPI Map Section */}
-      <section className="space-y-8">
-        <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Monthly KPI Map</h3>
-            <button className="text-xs font-bold text-sky-600 hover:text-sky-700 uppercase tracking-widest flex items-center gap-2 group transition-all">
-               Deep Dive Analysis <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-            </button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {topKpis.length > 0 ? (
-            <>
-              {topKpis[0] && <KpiCard kpi={topKpis[0]} icon={Rocket} colorClass="bg-sky-500" />}
-              {topKpis[1] && <KpiCard kpi={topKpis[1]} icon={Zap} colorClass="bg-emerald-500" />}
-              {topKpis[2] && <KpiCard kpi={topKpis[2]} icon={Target} colorClass="bg-red-500" />}
-            </>
-          ) : (
-            [1, 2, 3].map(i => (
-              <div key={i} className="glass-card h-64 bg-slate-50 animate-pulse border-slate-100 border-dashed" />
-            ))
-          )}
-        </div>
-      </section>
+      {/* KPI Tiles Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+         <KpiCard 
+           title="Sales Revenue" value="$124.5k" target="/$150k" progress={83} 
+           icon={Wallet} color="bg-sky-500" shadowColor="shadow-[0_0_15px_rgba(14,165,233,0.5)]"
+           progressLabel="PROGRESS"
+         />
+         <KpiCard 
+           title="Resolved Calls" value="942" target="/1,000" progress={94.2} 
+           icon={Headphones} color="bg-emerald-400" shadowColor="shadow-[0_0_15px_rgba(52,211,153,0.5)]"
+           progressLabel="EFFICIENCY"
+         />
+         <KpiCard 
+           title="Code Quality Index" value="78" target="/100" progress={78} 
+           icon={Terminal} color="bg-rose-500" shadowColor="shadow-[0_0_15px_rgba(244,63,94,0.5)]"
+           progressLabel="ACCURACY"
+         />
+      </div>
 
-      {/* Grid for Milestones and Support */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 pt-4">
-        {/* Upcoming Milestones */}
-        <section className="lg:col-span-2 space-y-8">
-          <h3 className="text-2xl font-black text-slate-900 tracking-tight">Upcoming Milestones</h3>
-          <div className="space-y-4">
-            {milestones.length > 0 ? milestones.map((m, idx) => (
-              <div key={m.id} className="glass-card p-6 flex items-center justify-between border-slate-100 group hover:border-sky-300 transition-all hover:bg-white hover:shadow-xl hover:shadow-sky-500/5">
-                <div className="flex items-center gap-8">
-                  <div className={`p-5 rounded-[22px] transition-colors ${idx % 3 === 0 ? 'bg-sky-50 text-sky-500' : idx % 3 === 1 ? 'bg-emerald-50 text-emerald-500' : 'bg-amber-50 text-amber-500'}`}>
-                    {idx % 3 === 0 ? <Rocket size={24} /> : idx % 3 === 1 ? <Star size={24} /> : <GraduationCap size={24} />}
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-extrabold text-slate-900 mb-1 group-hover:text-sky-600 transition-colors uppercase tracking-tight">{m.title}</h4>
-                    <p className="text-slate-500 text-sm font-medium">Ref: {m.kpisync_monthly_kpis?.kpisync_yearly_goals?.title || 'System Operational'}</p>
-                  </div>
-                </div>
-                <div className="text-right flex flex-col items-end">
-                   <p className="text-sm font-black text-sky-600 uppercase tracking-widest mb-1">OCT 24</p>
-                   <div className="px-3 py-1 bg-slate-50 rounded-full border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">IN 3 DAYS</p>
+        {/* Upcoming Milestones Section */}
+        <div className="lg:col-span-2 space-y-10">
+           <h3 className="text-2xl font-black text-white tracking-tight uppercase tracking-[0.2em] border-l-4 border-sky-500 pl-6 ml-2">Upcoming Milestones</h3>
+           <div className="space-y-6">
+              {[
+                { title: 'Quarterly Review Readiness', desc: 'Finalize all documentation and metric proofs.', icon: Rocket, color: 'text-sky-500', bg: 'bg-sky-500/10', date: 'OCT 24', delta: 'IN 3 DAYS' },
+                { title: 'Lead Generation Target', desc: 'Reach the 200 high-intent leads threshold.', icon: Star, color: 'text-emerald-500', bg: 'bg-emerald-500/10', date: 'OCT 30', delta: 'IN 9 DAYS' },
+                { title: 'Leadership Certification', desc: 'Complete Module 4: Conflict Resolution.', icon: GraduationCap, color: 'text-rose-500', bg: 'bg-rose-500/10', date: 'NOV 05', delta: 'IN 15 DAYS' },
+              ].map((m, idx) => (
+                <div key={idx} className="bg-slate-900/40 backdrop-blur-md border border-slate-800/60 rounded-[32px] p-8 flex items-center justify-between group hover:bg-slate-900/60 hover:border-slate-700 transition-all">
+                   <div className="flex items-center gap-8">
+                      <div className={`h-16 w-16 ${m.bg} ${m.color} rounded-2xl flex items-center justify-center border border-current opacity-60 group-hover:opacity-100 transition-opacity`}>
+                         <m.icon size={24} />
+                      </div>
+                      <div>
+                         <h4 className="text-xl font-black text-white leading-none mb-3 group-hover:text-sky-400 transition-colors uppercase tracking-tight">{m.title}</h4>
+                         <p className="text-sm font-bold text-slate-500">{m.desc}</p>
+                      </div>
+                   </div>
+                   <div className="text-right flex flex-col items-end">
+                      <p className={`text-sm font-black ${m.color.replace('text-', 'text-')} mb-2 uppercase tracking-widest`}>{m.date}</p>
+                      <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">{m.delta}</span>
                    </div>
                 </div>
-              </div>
-            )) : (
-              <div className="glass-card p-20 flex flex-col items-center justify-center border-dashed border-slate-300 bg-transparent">
-                <Target size={48} className="text-slate-200 mb-4" />
-                <p className="text-slate-400 font-extrabold text-lg">No High-Priority Milestones</p>
-                <p className="text-slate-300 text-sm mt-1">Operational stream is clear for the next 48h.</p>
-              </div>
-            )}
-          </div>
-        </section>
+              ))}
+           </div>
+        </div>
 
-        {/* Support & Context Area */}
-        <section className="space-y-8">
-          <h3 className="text-2xl font-black text-slate-900 tracking-tight">Support & Context</h3>
-          
-          <div className="bg-gradient-to-br from-sky-500 to-sky-600 rounded-[40px] p-10 text-white shadow-2xl shadow-sky-500/30 relative overflow-hidden group">
-            {/* Abstract Background Decoration */}
-            <div className="absolute -top-12 -right-12 p-20 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700" />
-            <div className="absolute -bottom-12 -left-12 p-20 bg-black/10 rounded-full blur-3xl" />
-            
-            <div className="relative z-10">
-              <div className="h-14 w-14 bg-white/20 backdrop-blur-lg rounded-2xl flex items-center justify-center mb-8">
-                 <HelpCircle size={32} className="text-white" />
+        {/* Support & Context Section */}
+        <div className="space-y-10">
+           <h3 className="text-2xl font-black text-white tracking-tight leading-none ml-2">Support & Context</h3>
+           
+           <div className="bg-gradient-to-br from-sky-400 to-sky-600 rounded-[48px] p-12 relative overflow-hidden group shadow-[0_0_40px_rgba(14,165,233,0.3)] hover:shadow-sky-500/50 transition-all active:scale-[0.98]">
+              <div className="absolute top-0 right-0 p-12 text-white/10 group-hover:text-white/20 transition-all opacity-40">
+                 <HelpIcon size={120} />
               </div>
-              <h4 className="text-3xl font-black leading-[1.1] mb-6">Stuck on a <span className="text-sky-200 italic">metric?</span></h4>
-              <p className="text-sky-50 text-base mt-4 leading-relaxed font-medium opacity-90">
-                If you're facing functional blockers or need tactical adjustments, reach out to your line manager for immediate assistance.
-              </p>
               
-              <button className="mt-10 w-full bg-white text-sky-600 font-black py-5 rounded-3xl flex items-center justify-center gap-3 hover:bg-sky-50 transition-all shadow-xl active:scale-95 uppercase tracking-[0.1em] text-sm">
-                <Zap size={20} fill="currentColor" />
-                REQUEST ASSISTANCE
-              </button>
-            </div>
-          </div>
+              <div className="relative z-10">
+                 <h4 className="text-4xl font-black text-white leading-none mb-8">Stuck on a <span className="text-sky-100 italic">metric?</span></h4>
+                 <p className="text-sky-50 text-base font-medium leading-relaxed mb-12 opacity-90">
+                    If you're facing blockers or need resource adjustments, reach out to your line manager directly.
+                 </p>
+                 <button className="w-full bg-white text-sky-600 font-black py-6 rounded-3xl flex items-center justify-center gap-3 shadow-xl hover:bg-sky-50 transition-all uppercase tracking-[0.2em] text-[12px]">
+                    <Zap size={20} className="fill-sky-600" />
+                    Request Assistance
+                 </button>
+              </div>
+           </div>
 
-          <div className="glass-card p-8 bg-white border-slate-100 mt-4 relative overflow-hidden group">
-             <div className="absolute top-0 right-0 p-4 bg-emerald-50 text-emerald-500 rounded-bl-3xl opacity-0 group-hover:opacity-100 transition-opacity">
-                <Star size={16} fill="currentColor" />
-             </div>
-             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Benchmarking Context</p>
-             <div className="flex items-center gap-4 mb-6">
-                <div className="flex -space-x-4">
-                   {[1,2,3,4].map(i => (
-                     <div key={i} className="h-10 w-10 rounded-full border-4 border-white bg-slate-200 overflow-hidden shadow-sm">
-                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i * 543}`} alt="avatar" />
-                     </div>
-                   ))}
-                   <div className="h-10 w-10 rounded-full border-4 border-white bg-sky-500 flex items-center justify-center text-xs font-black text-white shadow-sm">
-                      +12
-                   </div>
-                </div>
-                <div>
-                   <p className="text-xs font-bold text-slate-600">You are in the <span className="text-emerald-500 font-extrabold">top 15%</span></p>
-                   <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">Sales Dept. Tier A</p>
-                </div>
-             </div>
-             <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100">
-                <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.3)]" style={{ width: '85%' }} />
-             </div>
-          </div>
-        </section>
+           <div className="bg-slate-900/60 border border-slate-800/60 rounded-[40px] p-8 group relative overflow-hidden">
+              <p className="text-[10px] font-black text-sky-500 uppercase tracking-[0.3em] mb-10 ml-2">Your Team Comparison</p>
+              
+              <div className="flex items-center gap-6 mb-10">
+                 <div className="flex -space-x-4">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="h-10 w-10 rounded-full border-4 border-slate-950 bg-slate-900 group-hover:border-slate-800 transition-all">
+                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i * 777}`} alt="team member" className="rounded-full" />
+                      </div>
+                    ))}
+                    <div className="h-10 w-10 rounded-full border-4 border-slate-950 bg-sky-500 flex items-center justify-center text-[10px] font-black text-white shadow-lg">+5</div>
+                 </div>
+                 
+                 <p className="text-xs font-bold text-slate-400">
+                    You are in the <span className="text-emerald-400 font-black">top 15%</span> of your department.
+                 </p>
+              </div>
+
+              <div className="h-1.5 w-full bg-slate-950 rounded-full overflow-hidden border border-slate-900/60">
+                 <div className="h-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.4)]" style={{ width: '85%' }} />
+              </div>
+           </div>
+        </div>
+      </div>
+
+      {/* Action Footer */}
+      <div className="fixed bottom-12 right-12 z-[100]">
+         <button className="h-20 w-20 bg-sky-500 text-white rounded-[28px] flex items-center justify-center shadow-[0_0_30px_rgba(14,165,233,0.5)] active:scale-95 transition-all group overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+            <RefreshCw size={32} className="relative z-10 group-hover:rotate-180 transition-transform duration-700" />
+         </button>
       </div>
     </div>
   )
