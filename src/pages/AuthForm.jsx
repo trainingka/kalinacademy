@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { Mail, Lock, Shield, User as UserIcon, ArrowRight } from 'lucide-react'
 
@@ -9,8 +9,25 @@ export default function AuthForm() {
   const [role, setRole] = useState('staff')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [isResetting, setIsResetting] = useState(false)
+  const [message, setMessage] = useState(null)
   
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, sendResetPasswordEmail } = useAuth()
+
+  // Auto-Save: Load email from localStorage on mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('kpisync_last_email')
+    if (savedEmail) {
+      setEmail(savedEmail)
+    }
+  }, [])
+
+  // Auto-Save: Save email to localStorage on change
+  const handleEmailChange = (e) => {
+    const val = e.target.value
+    setEmail(val)
+    localStorage.setItem('kpisync_last_email', val)
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -18,13 +35,18 @@ export default function AuthForm() {
     setError(null)
     
     try {
-      if (isLogin) {
+      if (isResetting) {
+        await sendResetPasswordEmail(email)
+        setMessage('Reset link sent! Please check your corporate inbox.')
+        setError(null)
+      } else if (isLogin) {
         await signIn(email, password)
       } else {
         await signUp(email, password, role)
       }
     } catch (err) {
       setError(err.message)
+      setMessage(null)
     } finally {
       setLoading(false)
     }
@@ -40,12 +62,18 @@ export default function AuthForm() {
 
         <div className="glass-card p-8 border-slate-200 shadow-soft">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-semibold text-slate-900">{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
-            <p className="text-slate-500 text-sm mt-1">{isLogin ? 'Sign in to synchronize your metrics.' : 'Join the KPI ecosystem today.'}</p>
+            <h2 className="text-2xl font-semibold text-slate-900">
+              {isResetting ? 'Reset Password' : (isLogin ? 'Welcome Back' : 'Create Account')}
+            </h2>
+            <p className="text-slate-500 text-sm mt-1">
+              {isResetting 
+                ? 'Enter your email to receive a secure reset link.' 
+                : (isLogin ? 'Sign in to synchronize your metrics.' : 'Join the KPI ecosystem today.')}
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {!isLogin && (
+            {!isLogin && !isResetting && (
               <div className="bg-slate-100 p-1 rounded-xl flex gap-1 mb-6">
                 <button
                   type="button"
@@ -72,27 +100,51 @@ export default function AuthForm() {
                   placeholder="Corporate Email"
                   className="input-field pl-10"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
                   required
                 />
               </div>
 
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <input
-                  type="password"
-                  placeholder="Secure Access Key"
-                  className="input-field pl-10"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
+              {!isResetting && (
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    type="password"
+                    placeholder="Secure Access Key"
+                    className="input-field pl-10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
             </div>
+
+            {isLogin && !isResetting && (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsResetting(true)
+                    setError(null)
+                    setMessage(null)
+                  }}
+                  className="text-xs font-bold text-slate-400 hover:text-sky-500 transition-colors uppercase tracking-widest"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+            )}
 
             {error && (
               <div className="bg-red-50 text-red-600 text-sm p-3 rounded-xl border border-red-100">
                 {error}
+              </div>
+            )}
+
+            {message && (
+              <div className="bg-emerald-50 text-emerald-600 text-sm p-3 rounded-xl border border-emerald-100">
+                {message}
               </div>
             )}
 
@@ -103,7 +155,7 @@ export default function AuthForm() {
             >
               {loading ? 'Processing...' : (
                 <>
-                  {isLogin ? 'INITIATE SYNC' : 'REGISTER PROFILE'}
+                  {isResetting ? 'SEND RESET LINK' : (isLogin ? 'INITIATE SYNC' : 'REGISTER PROFILE')}
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </>
               )}
@@ -112,13 +164,26 @@ export default function AuthForm() {
 
           <div className="mt-8 text-center bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
             <p className="text-slate-600 text-sm">
-              {isLogin ? 'New to the ecosystem?' : 'Already registered?'}
-              <button
-                onClick={() => setIsLogin(!isLogin)}
-                className="ml-2 text-sky-600 font-semibold hover:text-sky-700 hover:underline transition-all"
-              >
-                {isLogin ? 'REQUEST ENTERPRISE ACCESS' : 'LOGIN TO ACCESS'}
-              </button>
+              {isResetting ? (
+                <button
+                  type="button"
+                  onClick={() => setIsResetting(false)}
+                  className="text-sky-600 font-semibold hover:text-sky-700 hover:underline transition-all"
+                >
+                  BACK TO LOGIN
+                </button>
+              ) : (
+                <>
+                  {isLogin ? 'New to the ecosystem?' : 'Already registered?'}
+                  <button
+                    type="button"
+                    onClick={() => setIsLogin(!isLogin)}
+                    className="ml-2 text-sky-600 font-semibold hover:text-sky-700 hover:underline transition-all"
+                  >
+                    {isLogin ? 'REQUEST ENTERPRISE ACCESS' : 'LOGIN TO ACCESS'}
+                  </button>
+                </>
+              )}
             </p>
           </div>
         </div>

@@ -21,11 +21,13 @@ export const useData = create((set, get) => ({
 
   fetchMonthlyKpis: async (goalId) => {
     set({ loading: true })
-    const query = supabase
+    let query = supabase
       .from('kpisync_monthly_kpis')
       .select('*, kpisync_yearly_goals(*)')
     
-    if (goalId) query.eq('yearly_goal_id', goalId)
+    if (goalId) {
+      query = query.eq('yearly_goal_id', goalId)
+    }
     
     const { data, error } = await query.order('month', { ascending: true })
     
