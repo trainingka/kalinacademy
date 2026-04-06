@@ -23,6 +23,12 @@ export default function UserProfile() {
     biometrics: false
   })
 
+  // Performance Logic for Mood Avatar
+  const completion = 85
+  const target = 90
+  const isPerforming = completion >= target
+  const moodAvatar = isPerforming ? '/happy_avatar.svg' : '/crying_avatar.svg'
+
   const handleLogout = async () => {
     try {
       await signOut()
@@ -67,7 +73,7 @@ export default function UserProfile() {
              <div className="relative">
                 <div className="h-40 w-40 rounded-full bg-slate-800 p-1 shadow-2xl border-4 border-sky-500 shadow-[0_0_25px_rgba(14,165,233,0.3)] relative overflow-hidden group/avatar">
                    <img 
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.email || 'alex'}`} 
+                      src={moodAvatar} 
                       alt="Avatar" 
                       className="w-full h-full object-cover rounded-full group-hover/avatar:scale-110 transition-transform duration-500"
                    />
@@ -110,11 +116,11 @@ export default function UserProfile() {
                          />
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center">
-                         <p className="text-3xl font-black text-white tracking-tighter">85%</p>
+                         <p className="text-3xl font-black text-white tracking-tighter">{completion}%</p>
                       </div>
                    </div>
                    <p className="text-sm font-black text-white uppercase tracking-tight mb-1">Monthly Completion</p>
-                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Target: 90%</p>
+                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Target: {target}%</p>
                 </div>
 
                 {/* 94% Efficiency */}

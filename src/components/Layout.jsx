@@ -24,6 +24,12 @@ export default function Layout() {
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
 
+  // Performance Logic for Mood Avatar (Mocked for current session)
+  const completion = 85
+  const target = 90
+  const isPerforming = completion >= target
+  const moodAvatar = isPerforming ? '/happy_avatar.svg' : '/crying_avatar.svg'
+
   const handleLogout = async () => {
     try {
       await signOut()
@@ -191,7 +197,7 @@ export default function Layout() {
                   className={`h-11 w-11 rounded-[14px] bg-slate-800 border-[1.5px] overflow-hidden shadow-2xl p-0.5 transition-all ${showProfileMenu ? 'border-sky-500' : 'border-slate-700 group-hover:border-sky-500/50'}`}
                 >
                    <img 
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.email || 'admin'}`} 
+                      src={moodAvatar} 
                       alt="Avatar" 
                       className="rounded-[10px] w-full h-full object-cover group-hover:scale-110 transition-transform"
                    />
