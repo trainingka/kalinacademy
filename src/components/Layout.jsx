@@ -63,7 +63,7 @@ export default function Layout() {
   }
 
   const handleSettingsClick = () => {
-    alert('Enterprise Settings module coming soon!')
+    navigate('/settings')
   }
 
   const menuItems = [
@@ -129,9 +129,9 @@ export default function Layout() {
              <h1 className="text-xl font-black text-slate-900 dark:text-white">KPISync</h1>
           </div>
           
-          <div className="hidden lg:block">
+          <div className="hidden lg:block transition-all">
             <h2 className="text-sm font-bold text-slate-500 uppercase tracking-widest leading-none">
-              {menuItems.find(i => isActive(i.path))?.label || 'Security Terminal'}
+              {location.pathname === '/settings' ? 'System Settings' : (menuItems.find(i => isActive(i.path))?.label || 'Security Terminal')}
             </h2>
           </div>
 
