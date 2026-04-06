@@ -16,6 +16,16 @@ import Layout from './components/Layout'
 function App() {
   const { user, profile, loading, setUser, setProfile, setLoading, fetchProfile } = useAuth()
 
+  // Theme Initialization
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('kpisync_theme') || 'dark'
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [])
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)

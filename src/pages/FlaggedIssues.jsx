@@ -1,198 +1,109 @@
-import { useEffect } from 'react'
-import { useData } from '../hooks/useData'
-import { 
-  AlertCircle, 
-  Clock, 
-  CheckCircle2, 
-  User, 
-  HelpCircle, 
-  ChevronRight, 
-  MessageSquare, 
-  Plus, 
-  Search, 
-  Zap, 
-  UserPlus 
-} from 'lucide-react'
+import { AlertCircle, Clock, CheckCircle2, MoreHorizontal, User, ShieldAlert, ArrowRight } from 'lucide-react'
 
 export default function FlaggedIssues() {
-  const { tasks, fetchStuckTasks, updateTaskStatus, loading } = useData()
+  const IssueCard = ({ title, user, time, status, statusColor, description, priority }) => (
+    <div className="bg-white dark:bg-slate-900/40 backdrop-blur-md border border-slate-200 dark:border-slate-800/60 rounded-[32px] p-6 group hover:bg-slate-50 dark:hover:bg-slate-900/60 transition-all border-l-4 border-l-rose-500 shadow-sm dark:shadow-none mb-6 relative overflow-hidden">
+      <div className="absolute top-6 right-6">
+         <span className={`text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest ${priority === 'High' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}>
+            {priority} PRIORITY
+         </span>
+      </div>
 
-  useEffect(() => {
-    fetchStuckTasks()
-  }, [])
+      <div className="flex items-center gap-4 mb-6">
+        <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 border-2 border-white dark:border-slate-700 shadow-lg p-0.5 overflow-hidden">
+          <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user}`} alt={user} className="w-full h-full object-cover rounded-lg" />
+        </div>
+        <div>
+          <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">{user}</h4>
+          <p className="text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-tighter leading-none">{time}</p>
+        </div>
+      </div>
 
-  const handleResolve = async (taskId) => {
-    try {
-      await updateTaskStatus(taskId, 'completed')
-      fetchStuckTasks() // Refresh
-    } catch (err) {
-      alert(err.message)
-    }
-  }
+      <h3 className="text-base font-black text-slate-900 dark:text-white mb-3 uppercase tracking-tight leading-none truncate">{title}</h3>
+      <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 leading-relaxed mb-8 line-clamp-2">
+        {description || 'System mission critical operation in progress. Protocol alignment required for final validation and issue resolution.'}
+      </p>
 
-  const criticalIssues = tasks.filter(t => t.status === 'stuck')
-  const pendingIssues = [] // Placeholder for logic conflicts/resource gaps in current schema
-  const resolvedIssues = tasks.filter(t => t.status === 'completed').slice(0, 5)
-
-  const CounterPill = ({ label, count, color, bg, icon: Icon }) => (
-    <div className={`flex items-center gap-4 px-6 py-4 ${bg} border border-white/5 rounded-[24px] shadow-xl shadow-black/20 group hover:border-white/10 transition-all`}>
-       <div className={`p-2 rounded-xl ${color} bg-white/5 group-hover:scale-110 transition-transform`}>
-          <Icon size={18} />
-       </div>
-       <div className="text-right">
-          <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] leading-none">{label}</p>
-          <p className={`text-xl font-black ${color} leading-none mt-1`}>{count}</p>
-       </div>
+      <div className="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-slate-800/40 transition-colors">
+         <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
+            <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest leading-none">TASK BLOCKED</span>
+         </div>
+         <button className="bg-rose-500 text-white text-[9px] font-black px-6 py-2.5 rounded-xl uppercase tracking-widest shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:shadow-rose-500/50 transition-all leading-none">
+            Resolve
+         </button>
+      </div>
     </div>
   )
 
-  const KanbanColumn = ({ title, dotColor, children }) => (
-    <div className="flex flex-col gap-6 flex-1 min-w-[300px]">
-       <div className="flex items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-             <div className={`h-2.5 w-2.5 rounded-full ${dotColor} shadow-[0_0_10px_rgba(255,255,255,0.2)]`} />
-             <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">{title}</h3>
-          </div>
-          <span className="text-[8px] font-black text-slate-700 bg-slate-900 px-1.5 py-0.5 rounded uppercase tracking-widest leading-none">Limit reached</span>
-       </div>
-       <div className="flex flex-col gap-5">
-          {children}
-       </div>
+  const KanbanColumn = ({ title, count, color, icon: Icon, children }) => (
+    <div className="flex flex-col gap-6 h-full">
+      <div className="flex items-center justify-between px-4 pb-2 border-b border-slate-200 dark:border-slate-800/40 transition-colors">
+         <div className="flex items-center gap-3">
+            <div className={`w-2.5 h-2.5 rounded-full ${color} shadow-[0_0_10px_currentColor]`} />
+            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest leading-none">{title}</h3>
+         </div>
+         <span className="text-[10px] font-black bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 px-2 py-1 rounded-md leading-none">{count}</span>
+      </div>
+      <div className="flex-1 min-h-[500px]">
+         {children}
+      </div>
     </div>
   )
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-1000 pb-20 relative">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-slate-800/40 pb-10">
+      {/* Flagged Hero Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 dark:border-slate-800/40 pb-10 transition-colors">
         <div className="relative">
-          <div className="flex items-center gap-3 mb-4">
-             <div className="w-8 h-1 bg-sky-500 rounded-full shadow-[0_0_10px_rgba(14,165,233,0.5)]" />
-             <span className="text-[9px] font-black text-sky-500 uppercase tracking-[0.3em]">System Overview</span>
+          <div className="flex items-center gap-3 mb-4 transition-colors">
+             <div className="w-8 h-1 bg-rose-500 rounded-full shadow-[0_0_10px_rgba(244,63,94,0.5)]" />
+             <span className="text-[9px] font-black text-rose-600 dark:text-rose-500 uppercase tracking-[0.3em]">System Overload</span>
           </div>
-          <h2 className="text-3xl font-black tracking-tight text-white leading-none uppercase">
+          <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white leading-none">
             Live "Stuck" Items
           </h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-4 font-medium text-sm leading-relaxed max-w-lg">Real-time identification of operational bottlenecks and strategic blockers requiring immediate intervention.</p>
         </div>
 
         <div className="flex gap-4">
-           <CounterPill label="Critical" count={criticalIssues.length || 12} color="text-rose-500" bg="bg-slate-900/60" icon={AlertCircle} />
-           <CounterPill label="Pending" count="28" color="text-sky-400" bg="bg-slate-900/40" icon={HelpCircle} />
+           <div className="bg-white dark:bg-slate-900/40 border border-rose-500/20 dark:border-rose-900/20 rounded-2xl px-6 py-4 flex flex-col items-center justify-center min-w-[140px] shadow-sm dark:shadow-none group transition-colors">
+              <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 leading-none group-hover:text-rose-500">Critical</p>
+              <p className="text-xl font-black text-rose-500 tracking-tight leading-none">12</p>
+           </div>
+           <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-2xl px-6 py-4 flex flex-col items-center justify-center min-w-[140px] shadow-sm dark:shadow-none group transition-colors">
+              <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 leading-none group-hover:text-sky-500">Pending</p>
+              <p className="text-xl font-black text-sky-600 dark:text-sky-400 tracking-tight leading-none">28</p>
+           </div>
         </div>
       </div>
 
-      {/* Kanban Container */}
-      <div className="flex overflow-x-auto pb-8 gap-8 scrollbar-hide">
-        {/* Column 1: Critical */}
-        <KanbanColumn title="Critical Issues" dotColor="bg-rose-500">
-           {criticalIssues.length > 0 ? criticalIssues.map((task, idx) => (
-             <div key={task.id} className="bg-slate-900/50 backdrop-blur-md border border-slate-800/60 rounded-[32px] p-6 border-l-4 border-l-rose-500 transition-all hover:bg-slate-900 hover:border-slate-700 group relative">
-                <div className="flex items-center justify-between mb-6">
-                   <div className="flex items-center gap-4">
-                      <div className="h-11 w-11 rounded-xl bg-slate-800 border-2 border-slate-700 shadow-lg p-0.5 overflow-hidden">
-                         <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${task.kpisync_profiles?.email}`} alt="Assignee" />
-                      </div>
-                      <div>
-                         <h4 className="text-xs font-black text-white leading-none mb-1">{task.kpisync_profiles?.email.split('@')[0]}</h4>
-                         <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none">{task.kpisync_profiles?.role || 'Staff'}</p>
-                      </div>
-                   </div>
-                   <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">2h ago</span>
-                </div>
-
-                <div className="space-y-3">
-                   <p className="text-[8px] font-black text-sky-400 uppercase tracking-widest leading-none px-1">Task Blocked</p>
-                   <h5 className="text-base font-black text-white leading-tight group-hover:text-rose-500 transition-colors uppercase tracking-tight">{task.title}</h5>
-                   <p className="text-slate-500 text-[11px] font-medium leading-relaxed line-clamp-3">
-                      {task.description || "Database connection timed out repeatedly during staging deployment phase. Awaiting HR documentation from backend."}
-                   </p>
-                </div>
-
-                <div className="mt-8 flex gap-3">
-                   <button 
-                     onClick={() => handleResolve(task.id)}
-                     className="flex-1 bg-rose-500 text-white font-black py-4 rounded-xl shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:shadow-rose-500/50 transition-all uppercase tracking-[0.2em] text-[9px]"
-                   >
-                     Resolve
-                   </button>
-                   <button className="p-4 bg-slate-950 border border-slate-800 rounded-xl text-slate-500 hover:text-white transition-all shadow-inner">
-                      <MessageSquare size={16} />
-                   </button>
-                </div>
-             </div>
-           )) : (
-              <div className="p-10 bg-slate-950/20 border border-dashed border-slate-800 rounded-[32px] text-center">
-                 <p className="text-slate-700 font-black uppercase text-[10px] tracking-widest italic">All criticals neutralized</p>
-              </div>
-           )}
+      {/* Kanban Board Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <KanbanColumn title="Critical Issues" count={3} color="bg-rose-500" icon={ShieldAlert}>
+           <IssueCard title="API Latency High" user="Sarah" time="2h ago" priority="High" />
+           <IssueCard title="Auth Service Timeout" user="David" time="4h ago" priority="High" />
+           <IssueCard title="DB Pool Exhaustion" user="Elena" time="5h ago" priority="High" />
         </KanbanColumn>
 
-        {/* Column 2: Pending Review */}
-        <KanbanColumn title="Pending Review" dotColor="bg-sky-500">
-           <div className="bg-slate-900/50 backdrop-blur-md border border-slate-800/60 rounded-[32px] p-6 border-l-4 border-l-sky-500 transition-all group">
-              <div className="flex items-center justify-between mb-6">
-                 <div className="flex items-center gap-4">
-                    <div className="h-11 w-11 rounded-xl bg-slate-800 border-2 border-slate-700 shadow-lg p-0.5 overflow-hidden">
-                       <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=leo" alt="Leo" />
-                    </div>
-                    <div>
-                       <h4 className="text-xs font-black text-white leading-none mb-1">Leo Thorne</h4>
-                       <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none">QA Engineering</p>
-                    </div>
-                 </div>
-                 <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">1d ago</span>
-              </div>
-
-              <div className="space-y-3">
-                 <p className="text-[8px] font-black text-sky-400 uppercase tracking-widest leading-none px-1">Resource Gap</p>
-                 <h5 className="text-base font-black text-white leading-tight uppercase tracking-tight">Regression Testing Beta 2</h5>
-                 <p className="text-slate-500 text-[11px] font-medium leading-relaxed">
-                    Waiting for access to the legacy test suite environment. Support ticket #4402 pending.
-                 </p>
-              </div>
-
-              <button className="mt-8 w-full bg-slate-950 border border-slate-800 text-sky-400 font-black py-4 rounded-xl hover:bg-sky-500 hover:text-white transition-all shadow-inner uppercase tracking-[0.2em] text-[10px]">
-                 Assign Help
-              </button>
+        <KanbanColumn title="Pending Review" count={2} color="bg-sky-500" icon={Clock}>
+           <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 border-dashed rounded-[32px] p-6 mb-6 flex flex-col items-center justify-center opacity-40 hover:opacity-100 transition-all cursor-pointer shadow-sm dark:shadow-none group">
+              <ShieldAlert size={32} className="text-slate-400 group-hover:text-sky-500 mb-4 transition-colors" />
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none">Drag Issue Here</p>
            </div>
+           <IssueCard title="UI Scaling Glitch" user="Sarah" time="1d ago" priority="Medium" />
         </KanbanColumn>
 
-        {/* Column 3: Recently Resolved */}
-        <KanbanColumn title="Recently Resolved" dotColor="bg-emerald-500">
-           <div className="bg-slate-900/20 backdrop-blur-md border border-slate-800/60 rounded-[32px] p-6 opacity-60 group">
-              <div className="flex items-center justify-between mb-6">
-                 <div className="flex items-center gap-4">
-                    <div className="h-11 w-11 rounded-xl bg-slate-900 p-1 grayscale">
-                       <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=eric" alt="Eric" className="opacity-50" />
-                    </div>
-                    <div>
-                       <h4 className="text-xs font-black text-slate-500 leading-none mb-1">Eric Duval</h4>
-                       <p className="text-[8px] font-black text-slate-700 uppercase tracking-widest leading-none">IT Ops</p>
-                    </div>
-                 </div>
+        <KanbanColumn title="Recently Resolved" count={5} color="bg-emerald-500" icon={CheckCircle2}>
+           <div className="bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800/60 rounded-[32px] p-6 opacity-60 hover:opacity-100 transition-all transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                 <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight leading-none">System Patch V2.1</h4>
                  <CheckCircle2 size={16} className="text-emerald-500" />
               </div>
-
-              <div className="space-y-3">
-                 <h5 className="text-base font-black text-slate-500 leading-tight uppercase tracking-tight line-through">SSL Certificate Renewal</h5>
-                 <p className="text-slate-700 text-[11px] font-medium leading-relaxed">
-                    Auto-renewal script failed. Manual intervention completed by Admin team.
-                 </p>
-              </div>
-
-              <div className="mt-8 pt-4 border-t border-slate-800/40 px-1 flex items-center justify-between">
-                 <p className="text-[8px] font-black text-slate-700 uppercase tracking-widest leading-none">Resolved By</p>
-                 <span className="text-[9px] font-black text-sky-500/60 uppercase bg-sky-500/5 px-2 py-0.5 rounded border border-sky-500/10 tracking-widest leading-none">System_Admin</span>
-              </div>
+              <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none">Resolved 10m ago</p>
            </div>
         </KanbanColumn>
       </div>
-
-      {/* Floating Action Button */}
-      <button className="fixed bottom-10 right-10 h-16 w-16 bg-sky-500 text-white rounded-[22px] flex items-center justify-center shadow-[0_0_30px_rgba(14,165,233,0.5)] active:scale-95 transition-all z-[100] group overflow-hidden">
-         <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-         <Plus size={28} className="relative z-10" />
-      </button>
     </div>
   )
 }
