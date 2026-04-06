@@ -10,6 +10,7 @@ import MyKPIs from './pages/MyKPIs'
 import ResetPassword from './pages/ResetPassword'
 import FlaggedIssues from './pages/FlaggedIssues'
 import StaffPerformance from './pages/StaffPerformance'
+import UserProfile from './pages/UserProfile'
 import Layout from './components/Layout'
 
 function App() {
@@ -63,6 +64,7 @@ function App() {
           <Route path="performance" element={<StaffPerformance />} />
           <Route path="my-kpis" element={<MyKPIs />} />
           <Route path="flagged-issues" element={<FlaggedIssues />} />
+          <Route path="profile" element={<UserProfile />} />
           
           {/* Legacy/Deep Link support */}
           <Route path="goals" element={<Navigate to="/dashboard" replace />} />

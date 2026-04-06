@@ -182,7 +182,14 @@ export default function Layout() {
                      {profile?.role || 'System Root'}
                   </p>
                 </div>
-                <div className={`h-11 w-11 rounded-[14px] bg-slate-800 border-[1.5px] overflow-hidden shadow-2xl p-0.5 transition-all ${showProfileMenu ? 'border-sky-500' : 'border-slate-700 group-hover:border-sky-500/50'}`}>
+                <div 
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    navigate('/profile')
+                    setShowProfileMenu(false)
+                  }}
+                  className={`h-11 w-11 rounded-[14px] bg-slate-800 border-[1.5px] overflow-hidden shadow-2xl p-0.5 transition-all ${showProfileMenu ? 'border-sky-500' : 'border-slate-700 group-hover:border-sky-500/50'}`}
+                >
                    <img 
                       src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.email || 'admin'}`} 
                       alt="Avatar" 
@@ -199,7 +206,13 @@ export default function Layout() {
                      <p className="text-[9px] font-black text-sky-500 uppercase tracking-[0.2em] mt-1">Status: Authorized</p>
                   </div>
                   <div className="p-2">
-                     <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-all text-left">
+                     <button 
+                        onClick={() => {
+                          navigate('/profile')
+                          setShowProfileMenu(false)
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-all text-left"
+                     >
                         <User size={18} />
                         <span className="text-xs font-bold uppercase tracking-widest">My Profile</span>
                      </button>
